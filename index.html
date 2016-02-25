@@ -58,7 +58,23 @@
 				</section>
 
 				<section>
-					<h3>State Model</h3>
+					<h3>Index</h3>
+					<ul>
+						<li>Existing system</li>
+						<li>Issues with the state model</li>
+						<li>Related work</li>
+						<li>CQRS Pattern</li>
+						<li>Comparision with views</li>
+						<li>Event sourcing</li>
+						<li>Properties &amp; rules</li>
+						<li>Other advantages</li>
+						<li>Event sourcing in the real world</li>
+						<li>Bibliography</li>
+					</ul>
+				</section>
+
+				<section>
+					<h3>Existing system - State Model</h3>
 					<img src="img/state-diagram.png" height="300px" />
 					<table>
 						<tr>
@@ -114,6 +130,33 @@
 						<li>Events that led to the current state aren't stored</li>
 						<li>Separate logging mechanism is required for regulatory purposes</li>
 						<li>Difficult to implement caching</li>
+					</ul>
+				</section>
+
+				<section>
+					<h3>Related work</h3>
+					<ul>
+						<li>
+							Michael Dippery in Modeling States and Transitions in Relational Databases [1]
+							<ul>
+								<li>Issues related to recording state transitions and how to overcome them</li>
+								<li>Maintain a snapshot at each step</li>
+								<li>Have a separate audit log to walk through events</li>
+							</ul>
+						</li>
+					</ul>
+				</section>
+
+				<section>
+					<h3>Related work</h3>
+					<ul>
+						<li>
+							Jonathan Oliver [2][3] in Idempotency Patterns and Event Sourcing and Immutable Data
+							<ul>
+								<li>Advantages of storing immutable data</li>
+								<li>Introduces a message store</li> 
+							</ul>
+						</li>
 					</ul>
 				</section>
 
@@ -384,11 +427,12 @@
 				<section>
 					<h3>Bibliography</h3>
 					<ul>
-						<li><a href="ceur-ws.org/Vol-1036/p86-Rajkovic.pdf" target="_blank">Using CQRS Pattern for Improving Performances in Medical Information Systems</a></li>
-						<li><a href="https://cqrs.files.wordpress.com/2010/11/cqrs_documents.pdf" target="_blank">CQRS Documents by Greg Young</a></li>
 						<li><a href="http://monkey-robot.com/2014/05/modeling-states-and-transitions-in-relational-databases/" target="_blank">Modeling States and Transitions in Relational Databases</a></li>
 						<li><a href="http://blog.jonathanoliver.com/idempotency-patterns/">Idempotency Patterns</a></li>
+						<li><a href="http://blog.jonathanoliver.com/cqrs-event-sourcing-and-immutable-data/" target="_blank">CQRS: Event Sourcing and Immutable Data</a></li>
 						<li><a href="https://msdn.microsoft.com/en-us/library/dn589792.aspx" target="_blank">Event Sourcing Pattern</a></li>
+						<li><a href="ceur-ws.org/Vol-1036/p86-Rajkovic.pdf" target="_blank">Using CQRS Pattern for Improving Performances in Medical Information Systems</a></li>
+						<li><a href="https://cqrs.files.wordpress.com/2010/11/cqrs_documents.pdf" target="_blank">CQRS Documents by Greg Young</a></li>
 					</ul>
 				</section>
 
