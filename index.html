@@ -98,26 +98,6 @@
 									</tbody>
 								</table>
 							</td>
-							<td>
-								<table>
-									<thead>
-										<tr>
-											<th>Transaction Id</th>
-											<th>Event</th>
-										</tr>
-									</thead>
-									<tbody>
-										<tr>
-											<td>T1</td>
-											<td>a</td>
-										</tr>
-										<tr>
-											<td>T1</td>
-											<td>a</td>
-										</tr>
-									</tbody>
-								</table>
-							</td>
 						</tr>
 					</table>
 				</section>
@@ -128,8 +108,9 @@
 						<li>Data is stored in a large number of tables and joins are expensive</li>
 						<li>Many fields of data that has been retreived aren't used</li>
 						<li>Events that led to the current state aren't stored</li>
-						<li>Separate logging mechanism is required for regulatory purposes</li>
+						<li>Separate logging &amp; backup mechanisms are required for regulatory purposes</li>
 						<li>Mutable data makes it difficult to implement caching</li>
+						<li>Snapshots of the entire database are required for backup</li>
 					</ul>
 				</section>
 
@@ -137,7 +118,22 @@
 					<h3>Literature Survey</h3>
 					<ul>
 						<li>
-							Michael Dippery in Modeling States and Transitions in Relational Databases [1]
+							Petar Rajković et al. in Developing and Deploying Medical Information Systems [2] and Software Tools for Rapid Development and Customization of Medical Information Systems [3]
+							<ul>
+								<li>Critical systems should have redundant servers and databases</li>
+								<li>End users should not be exposed to the complications of the system</li>
+								<li>Record all events to identify bugs</li>
+							</ul>
+						</li>
+					</ul>
+				</section>
+
+				<section>
+					<h3>Literature Survey</h3>
+					<p>(continued)</p>
+					<ul>
+						<li>
+							Michael Dippery in Modeling States and Transitions in Relational Databases [4]
 							<ul>
 								<li>Issues related to recording state transitions and how to overcome them</li>
 								<li>Maintain a snapshot at each step</li>
@@ -152,7 +148,7 @@
 					<p>(continued)</p>
 					<ul>
 						<li>
-							Jonathan Oliver [2][3] in Idempotency Patterns and Event Sourcing and Immutable Data
+							Jonathan Oliver in Idempotency Patterns [5] and Event Sourcing and Immutable Data [6]
 							<ul>
 								<li>Advantages of storing immutable data</li>
 								<li>Introduces a message store</li> 
@@ -164,8 +160,7 @@
 				<section>
 					<h3>Proposed system: CQRS and Event Sourcing</h3>
 					<ul>
-						<li>CQRS: Command Query Responsibility Segregation</li>
-						<li>Divide data store based on access patterns</li>
+						<li>CQRS: Command and Query Responsibility Segregation</li>
 						<li>
 							Two types of methods:
 							<ol>
@@ -179,9 +174,10 @@
 				<section>
 					<h3>CQRS database design</h3>
 					<ul>
+						<li>Divide data store based on access patterns</li>
 						<li>Main database: dedicated server for insert, update and delete</li>
 						<li>Read database: separate store for select operations</li>
-						<li>Result of join operations could be stored in the read database</li>
+						<li>Denormalized data could be stored in the read database</li>
 					</ul>
 				</section>
 
@@ -197,10 +193,10 @@
 					<h3>Comparision with "views"</h3>
 					<ul>
 						<li>Views may not be available</li>
-						<li>Can be updated on read request</li>
+						<li>Views of a remote database may not be supported</li>
 						<li>Control over eventually &amp; strongly consistent reads</li>
+						<li>Can be updated on read request</li>
 						<li>Timeout mechanism to keep the read database lean</li>
-						<li>Views are difficult to manage when complex operations are needed to update records</li>
 					</ul>
 				</section>
 
@@ -218,12 +214,9 @@
 
 				<section>
 					<h3>CQRS as a starting point</h3>
-					<p style="text-align: left;">CQRS Pattern acts as a starting point on top of which different patterns can been implemented</p>
 					<ul style="float: left;">
-						<li>Event Sourcing Pattern</li>
-						<li>Pipes and Filters Pattern</li>
-						<li>Idempotency Pattern</li>
-						<li>Materialized Views</li>
+						<li>CQRS Pattern acts as a starting point on top of which different patterns can been implemented</li>
+						<li>Event Sourcing is one such pattern</li>
 					</ul>
 				</section>
 
@@ -232,27 +225,6 @@
 					<p>Store events rather than state</p>
 					<div>
 						<small>
-						<div>
-							<table>
-								<thead>
-									<tr>
-										<th>Account No.</th>
-										<th>Balance</th>
-									</tr>
-								</thead>
-								<tbody>
-									<tr>
-										<td>001</td>
-										<td>500</td>
-									</tr>
-									<tr>
-										<td>002</td>
-										<td>360</td>
-									</tr>
-								</tbody>
-							</table>
-						</div>
-						<hr/>
 						<div>
 							<table>
 								<thead>
@@ -286,6 +258,27 @@
 								</tbody>
 							</table>
 						</div>
+						<hr/>
+						<div>
+							<table>
+								<thead>
+									<tr>
+										<th>Account No.</th>
+										<th>Balance</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<td>001</td>
+										<td>500</td>
+									</tr>
+									<tr>
+										<td>002</td>
+										<td>360</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
 						</small>
 					</div>
 					<p><small>Balance is a first level derivative of the events on the account</small></p>
@@ -294,13 +287,13 @@
 				<section>
 					<h3>Properties of the main database</h3>
 					<ul>
-						<li>Storage space is cheap; data is expensive</li>
 						<li>Updates and deletes lose data - don't use them</li>
+						<li>Storage space is cheap; data is expensive</li>
 						<li>Use reversals to undo events</li>
 						<li>Inserts are used to add new events</li>
 						<li>Events are immutable</li>
-						<li>Scalable - no synchronization issues</li>
-						<li>Immutability = cacheability</li>
+						<li>No synchronization issues; Scalable</li>
+						<li>Immutability leads to cacheability</li>
 					</ul>
 				</section>
 
@@ -368,7 +361,18 @@
 				</section>
 
 				<section>
-					<h3>Read Database</h3>
+					<h3>Projections</h3>
+					<ul>
+						<li>Functions in the synchronization component</li>
+						<li>Read the event stream</li>
+						<li>Create entities and modify their state</li>
+						<li>Store entities in the read database</li>
+						<li>Create new projections rather than migrating data</li>
+					</ul>
+				</section>
+
+				<section>
+					<h3>Properties of the Read Database</h3>
 					<ul>
 						<li>State is stored only in the read database</li>
 						<li>It is derived and is not just another view of the main database</li>
@@ -401,7 +405,7 @@
 						</tr>
 						<tr>
 							<td>Event 6</td>
-							<td></td>
+							<td>Snapshot 2</td>
 						</tr>
 					</table>
 				</section>
@@ -410,27 +414,33 @@
 					<h3>Other advantages</h3>
 					<ul>
 						<li>Use WORM drives to overcome superuser attacks</li>
-						<li>Simplified audit logs</li>
+						<li>Event streams act audit logs</li>
 						<li>No need to run migration scripts</li>
-						<li>Easier to comprehend as it is the natural way in which things are done</li>
+						<li>Natural way in which many domains operate</li>
 					</ul>
 				</section>
 
 				<section>
-					<h3>Future work</h3>
+					<h3>Conclusion and Future work</h3>
+					<ul>
+						<li>All the issues that were initially identified have been solved</li>
+						<li>Strong consistency is expensive</li>
+						<li>Not suitable when writes to reads ratio is high</li>
+						<li>Redundancy when an event belongs to multiple event streams</li>
+					</ul>
 				</section>
 
 				<section>
 					<h3>Bibliography</h3>
-					<ul style="font-size: 33px;">
-						<li><a href="ceur-ws.org/Vol-1036/p86-Rajkovic.pdf" target="_blank">Rajkovic, P. et al.: Using CQRS Pattern for Improving Performances in Medical Information Systems, CUER Publication: Vol. 1036</a></li>
-						<li><a href="#/19">Dragan Janković. et al.: Developing and Deploying Medical Information Systems, Computer Science and Information Science Vol. 10</a></li>
-						<li><a href="#/19">Petar R.. et al.: Software tools for rapid development and customization of medical information systems, 12th IEEE International Conference on e-Health Networking Applications and Services</a></li>
+					<ol style="font-size: 33px;">
+						<li><a href="ceur-ws.org/Vol-1036/p86-Rajkovic.pdf" target="_blank">Rajkovic, P. et al.: Using CQRS Pattern for Improving Performances in Medical Information Systems - CUER Publication: Vol. 1036</a></li>
+						<li><a href="#/19">Dragan Janković. et al.: Developing and Deploying Medical Information Systems - Journal of Computer Science and Information Science Vol. 10</a></li>
+						<li><a href="#/19">Petar R.. et al.: Software tools for rapid development and customization of medical information systems - 12th IEEE International Conference on e-Health Networking Applications and Services</a></li>
 						<li><a href="http://monkey-robot.com/2014/05/modeling-states-and-transitions-in-relational-databases/" target="_blank">Michael Dippery: Modeling States and Transitions in Relational Databases</a></li>
 						<li><a href="http://blog.jonathanoliver.com/idempotency-patterns/">Jonathan Oliver: Idempotency Patterns</a></li>
 						<li><a href="http://blog.jonathanoliver.com/cqrs-event-sourcing-and-immutable-data/" target="_blank">Jonathan Oliver: CQRS: Event Sourcing and Immutable Data</a></li>
 						<li><a href="https://cqrs.files.wordpress.com/2010/11/cqrs_documents.pdf" target="_blank">Greg Young: CQRS Documents</a></li>
-					</ul>
+					</ol>
 				</section>
 
 				<section>
